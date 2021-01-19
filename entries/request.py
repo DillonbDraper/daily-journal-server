@@ -40,3 +40,67 @@ def get_all_entries():
 
     # Use `json` package to properly serialize list as JSON
     return json.dumps(entries)
+
+
+def get_single_entry(id):
+    with sqlite3.connect("./dailyjournal.db") as conn:
+
+        # Just use these. It's a Black Box.
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        # Write the SQL query to get the information you want
+        db_cursor.execute("""
+        SELECT
+            a.id,
+            a.concept,
+            a.entry,
+            a.date,
+            a.moodId
+        FROM Entries a
+        WHERE a.id = ?
+        """, ( id, ))
+
+        data = db_cursor.fetchone()
+
+        entry = Entry(data['id'], data['concept'], data['entry'], data['date'], data['moodId'])
+
+        return json.dumps(entry.__dict__)
+
+def delete_entry(id):
+    with sqlite3.connect("./dailyjournal.db") as conn:
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        DELETE FROM Entries
+        WHERE id = ?
+        """, (id, ))
+
+def search_entry(word):
+    with sqlite3.connect("./dailyjournal.db") as conn:
+
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        SELECT
+            a.id,
+            a.concept,
+            a.entry,
+            a.date,
+            a.moodId
+        FROM Entries a
+        WHERE a.entry LIKE ?
+        """, ("%"+ word + "%", ))
+
+        entries = []
+
+        dataset = db_cursor.fetchall()
+
+        for row in dataset:
+
+            entry = Entry(row['id'], row['concept'], row['entry'],
+                            row['date'], row['moodId'])
+            entries.append(entry.__dict__)
+
+    return json.dumps(entries)
