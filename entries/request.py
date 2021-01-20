@@ -1,6 +1,6 @@
 import sqlite3
 import json
-from models import Entry
+from models import Entry, Mood
 
 def get_all_entries():
     # Open a connection to the database
@@ -17,8 +17,12 @@ def get_all_entries():
             a.concept,
             a.entry,
             a.date,
-            a.moodId
+            a.moodId,
+            b.id moodCode,
+            b.label
         FROM Entries a
+        JOIN MOODS b
+        ON a.moodId == moodCode
         """)
 
         # Initialize an empty list to hold all animal representations
@@ -36,6 +40,10 @@ def get_all_entries():
             # Animal class above.
             entry = Entry(row['id'], row['concept'], row['entry'],
                             row['date'], row['moodId'])
+
+            mood = Mood(row['moodCode'], row['label'])
+
+            entry.mood = mood.__dict__
             entries.append(entry.__dict__)
 
     # Use `json` package to properly serialize list as JSON
@@ -56,14 +64,21 @@ def get_single_entry(id):
             a.concept,
             a.entry,
             a.date,
-            a.moodId
+            a.moodId,
+            b.id moodCode,
+            b.label
         FROM Entries a
+        JOIN MOODS b
+        ON a.moodId == moodCode
         WHERE a.id = ?
         """, ( id, ))
 
         data = db_cursor.fetchone()
 
         entry = Entry(data['id'], data['concept'], data['entry'], data['date'], data['moodId'])
+        mood = Mood (data['moodCode'], data['label'])
+
+        entry.mood = mood.__dict__
 
         return json.dumps(entry.__dict__)
 
