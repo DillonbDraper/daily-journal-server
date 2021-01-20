@@ -3,6 +3,7 @@ from entries import get_all_entries
 from entries import get_single_entry
 from entries import delete_entry
 from entries import search_entry
+from entries import create_entry
 import json
 
 
@@ -88,14 +89,8 @@ class HandleRequests(BaseHTTPRequestHandler):
         # Add a new animal to the list. Don't worry about
         # the orange squiggle, you'll define the create_animal
         # function next.
-        if resource == "animals":
-            new_resource = create_animal(post_body)
-
-        if resource == "customers":
-            new_resource = create_customer(post_body)
-
-        if resource == "locations":
-            new_resource = create_location(post_body)
+        if resource == "entries":
+            new_resource = create_entry(post_body)
 
         # Encode the new animal and send in response
 
