@@ -1,6 +1,6 @@
 import sqlite3
 import json
-from models import Entry, Mood
+from models import Entry, Mood, Tag
 
 def get_all_entries():
     # Open a connection to the database
@@ -12,17 +12,23 @@ def get_all_entries():
 
         # Write the SQL query to get the information you want
         db_cursor.execute("""
-        SELECT
+        SELECT 
             a.id,
             a.concept,
             a.entry,
             a.date,
             a.moodId,
             b.id moodCode,
-            b.label
+            b.label,
+            d.Id tagId,
+            d.name tagName
         FROM Entries a
-        JOIN MOODS b
+        LEFT JOIN MOODS b
         ON a.moodId == moodCode
+        LEFT JOIN entry_tag c
+        ON a.id == c.entry_id
+        LEFT JOIN Tags d
+        ON c.tag_id == d.id
         """)
 
         # Initialize an empty list to hold all animal representations
@@ -43,7 +49,11 @@ def get_all_entries():
 
             mood = Mood(row['moodCode'], row['label'])
 
+            tag = Tag(row['tagId'], row['tagName'])
+
             entry.mood = mood.__dict__
+            entry.tag = tag.__dict__
+
             entries.append(entry.__dict__)
 
     # Use `json` package to properly serialize list as JSON
@@ -123,6 +133,8 @@ def search_entry(word):
 def create_entry(new_entry):
     with sqlite3.connect("./dailyjournal.db") as conn:
         db_cursor = conn.cursor()
+        conn.row_factory = sqlite3.Row
+
 
         db_cursor.execute("""
         INSERT INTO Entries
@@ -141,6 +153,17 @@ def create_entry(new_entry):
         # was sent by the client so that the client sees the
         # primary key in the response.
         new_entry['id'] = id
+
+        tag_ids = new_entry["tag_ids"]
+
+        for tag in tag_ids:
+
+            db_cursor.execute("""
+            INSERT INTO entry_tag
+                ( entry_id, tag_id )
+            VALUES
+                ( ?, ? );        
+            """, ( id, tag, ))
 
 
     return json.dumps(new_entry)

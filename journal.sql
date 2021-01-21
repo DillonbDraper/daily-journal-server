@@ -12,6 +12,27 @@ CREATE TABLE `Moods` (
 	`label`  TEXT NOT NULL
 );
 
+CREATE TABLE `Tags` (
+	`id`  INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	`name`  TEXT NOT NULL
+);
+
+CREATE TABLE `entry_tag` (
+    `id`    INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    `entry_id`    INTEGER NOT NULL,
+    `tag_id`    INTEGER NOT NULL,
+    FOREIGN KEY(`entry_id`) REFERENCES `Entries`(`id`)
+    FOREIGN KEY(`tag_id`) REFERENCES `Tags`(`id`)
+);
+
+INSERT INTO 'Tags' VALUES (null, "Fun");
+INSERT INTO 'Tags' VALUES (null, "Python");
+INSERT INTO 'Tags' VALUES (null, "JS");
+INSERT INTO 'Tags' VALUES (null, "Django");
+
+
+
+
 INSERT INTO 'Entries' VALUES (null, "1235", "123", 1598458543321, 1);
 INSERT INTO 'Entries' VALUES (null, "abc", "123", 1598458548239, 2);
 INSERT INTO 'Entries' VALUES (null, "Delete", "Now Deleting", 1598458559152, 1);

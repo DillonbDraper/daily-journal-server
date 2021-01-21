@@ -1,3 +1,4 @@
+from tags.request import get_all_tags
 from entries.request import update_entry
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from entries import get_all_entries
@@ -6,6 +7,7 @@ from entries import delete_entry
 from entries import search_entry
 from entries import create_entry
 from entries import update_entry
+from tags import get_all_tags
 import json
 
 
@@ -53,6 +55,9 @@ class HandleRequests(BaseHTTPRequestHandler):
                     response = f"{get_all_entries()}"
                 elif id is not None:
                     response = f"{get_single_entry(id)}"
+            elif resource == "tags":
+                if id is None:
+                    response = f"{get_all_tags()}"
 
         # Response from parse_url() is a tuple with 3
         # items in it, which means the request was for
