@@ -1,9 +1,11 @@
+from entries.request import update_entry
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from entries import get_all_entries
 from entries import get_single_entry
 from entries import delete_entry
 from entries import search_entry
 from entries import create_entry
+from entries import update_entry
 import json
 
 
@@ -109,14 +111,8 @@ class HandleRequests(BaseHTTPRequestHandler):
         (resource, id) = self.parse_url(self.path)
 
         # Delete a single animal from the list
-        if resource == "animals":
-            update_animal(id, post_body)
-
-        if resource == "customers":
-            update_customer(id, post_body)
-
-        if resource == "locations":
-            update_location(id, post_body)
+        if resource == "entries":
+            update_entry(id, post_body)
 
         # Encode the new animal and send in response
         self.wfile.write("".encode())
