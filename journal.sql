@@ -44,3 +44,22 @@ INSERT INTO 'Moods' VALUES (null, "Sad");
 INSERT INTO 'Moods' VALUES (null, "Angry");
 INSERT INTO 'Moods' VALUES (null, "Ok");
 
+SELECT 
+            a.id,
+            a.concept,
+            a.entry,
+            a.date,
+            a.moodId,
+            b.id moodCode,
+            b.label,
+            c.entry_id,
+            c.tag_id,
+            d.Id tagId,
+            d.name tagName
+        FROM Entries a
+        LEFT JOIN MOODS b
+        ON a.moodId == moodCode
+        LEFT JOIN entry_tag c
+        ON a.id == c.entry_id
+        LEFT JOIN Tags d
+        ON c.tag_id == d.id

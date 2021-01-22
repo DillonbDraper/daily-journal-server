@@ -20,6 +20,8 @@ def get_all_entries():
             a.moodId,
             b.id moodCode,
             b.label,
+            c.entry_id,
+            c.tag_id,
             d.Id tagId,
             d.name tagName
         FROM Entries a
@@ -32,32 +34,52 @@ def get_all_entries():
         """)
 
         # Initialize an empty list to hold all animal representations
-        entries = []
+        entries = {}
 
         # Convert rows of data into a Python list
         dataset = db_cursor.fetchall()
 
         # Iterate list of data returned from database
         for row in dataset:
+            if row['id'] in entries:
+                tag = Tag(row['tagId'], row['tagName'])
+                entries[row['id']].tags.append(tag.__dict__)
+                
+            else: 
+                entry = Entry(row['id'], row['concept'], row['entry'],
+                                row['date'], row['moodId'])
+                entries[row['id']] = entry
 
-            # Create an animal instance from the current row.
-            # Note that the database fields are specified in
-            # exact order of the parameters defined in the
-            # Animal class above.
-            entry = Entry(row['id'], row['concept'], row['entry'],
-                            row['date'], row['moodId'])
+                tag = Tag(row['tagId'], row['tagName'])
+                entries[row['id']].tags = []
+                entries[row['id']].tags.append(tag.__dict__)
 
-            mood = Mood(row['moodCode'], row['label'])
+                mood = Mood(row['moodCode'], row['label'])
+                entries[row['id']].mood = mood.__dict__
 
-            tag = Tag(row['tagId'], row['tagName'])
-
-            entry.mood = mood.__dict__
-            entry.tag = tag.__dict__
-
-            entries.append(entry.__dict__)
+                """
+                {
+                    1: {
+                        "id": 1,
+                        "concept": "vjefivofe",
+                        "date"; : "vitnvio",
+                        tags: [
+                            "tired"
+                        ],
+                        "moodId": 4
+                    },
+                    3: [Object Entry]
+                }
+                """
+                    
+#Figure out how to only get relevant tags onto the object and only make one object
 
     # Use `json` package to properly serialize list as JSON
-    return json.dumps(entries)
+    dict_entries = []
+    for entry in entries.values():
+        dict_entries.append(entry.__dict__)
+
+    return json.dumps(dict_entries)
 
 
 def get_single_entry(id):
